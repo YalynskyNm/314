@@ -25,22 +25,25 @@ import java.util.*;
 public class UserServiceImp implements UserService {
 
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    public UserServiceImp(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public void add(User user) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.saveAndFlush(user);
     }
 
+
     @PostConstruct
     public void add() {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         User user = new User("Tony", "Stark", 33, "ironman@mail.ru", "ironman");
         Role role1 = roleRepository.saveAndFlush(new Role("ROLE_ADMIN"));
         Role role2 = roleRepository.saveAndFlush(new Role("ROLE_USER"));
@@ -86,6 +89,6 @@ public class UserServiceImp implements UserService {
         for (Role role : user.getRoleSet()) {
             grantedAuthorities.add(new SimpleGrantedAuthority(role.getName()));
         }
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), grantedAuthorities);
+        return user;
     }
 }
