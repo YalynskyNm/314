@@ -58,10 +58,10 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public void update(User user, Set<Role> roleSet) {
-        user.setRoleSet(roleSet);
+    public void update(User user) {
         userRepository.saveAndFlush(user);
     }
+
 
     @Override
     public List<User> listUsers() {

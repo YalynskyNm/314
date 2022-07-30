@@ -1,6 +1,5 @@
 package com.example.model;
 
-import com.sun.org.apache.xpath.internal.operations.Equals;
 import org.hibernate.annotations.Check;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -151,5 +150,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }

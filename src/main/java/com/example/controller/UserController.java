@@ -18,11 +18,14 @@ import java.util.stream.Collectors;
 @Controller
 public class UserController {
 
-    @Autowired
-    private RoleService roleService;
+    private final RoleService roleService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserController(RoleService roleService, UserService userService) {
+        this.roleService = roleService;
+        this.userService = userService;
+    }
 
     @GetMapping("/login")
     public String getLogin() {
@@ -44,42 +47,5 @@ public class UserController {
         model.addAttribute("user", userService.getUserByUsername(principal.getName()));
         model.addAttribute("principal", userService.getUserByUsername(principal.getName()));
         return "user";
-    }
-
-
-
-    @PostMapping("admin/user/new")
-    public String addUser(@ModelAttribute("user") User user, @RequestParam("newUserRoles") String[] roles) {
-        try {
-            Set<Role> roleSet = Arrays.stream(roles)
-                    .map(roleService::getRoleByName)
-                    .collect(Collectors.toSet());
-
-            user.setRoleSet(roleSet);
-            userService.add(user);
-        } catch (Exception e) {
-            //ignored
-        }
-        return "redirect:/admin";
-    }
-
-
-    @PatchMapping("/admin/user/edit")
-    public String editUser(@ModelAttribute("user") User user, @RequestParam("allRoles[]") String[] roles) {
-        try {
-            Set<Role> roleSet = Arrays.stream(roles)
-                    .map(roleService::getRoleByName)
-                    .collect(Collectors.toSet());
-            userService.update(user, roleSet);
-        } catch (Exception e) {
-            //ignored
-        }
-        return "redirect:/admin";
-    }
-
-    @DeleteMapping("admin/user/{id}")
-    public String deleteUser(@PathVariable("id") long id) {
-        userService.delete(userService.getUserById(id));
-        return "redirect:/admin";
     }
 }
