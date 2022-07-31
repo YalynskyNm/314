@@ -4,6 +4,8 @@ import com.example.model.Role;
 import com.example.model.User;
 import com.example.service.RoleService;
 import com.example.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -23,45 +25,49 @@ public class UserRESTController {
     }
 
     @GetMapping(value = "/admin")
-    public List<User> listUsers() {
-        List<User> users = userService.listUsers();
-        return users;
+    public  ResponseEntity<List<User>> listUsers() {
+        final List<User> users = userService.listUsers();
+        return users != null && !users.isEmpty() ? new ResponseEntity<>(users, HttpStatus.OK)
+                : new ResponseEntity<> (HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/roles")
-    public List<Role> getRoles() {
-        List<Role> roles = roleService.findAll();
-        return roles;
+    public ResponseEntity<List<Role>> getRoles() {
+        final List<Role> roles = roleService.findAll();
+        return (ResponseEntity<List<Role>>) roles;
     }
 
     @GetMapping("/user")
-    public User getUser(Principal principal) {
-        return userService.getUserByUsername(principal.getName());
+    public ResponseEntity<User> getUser(Principal principal) {
+        User user = userService.getUserByUsername(principal.getName());
+        return user != null ? new ResponseEntity<>(user, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/user/{id}")
-    public User getUserById(@PathVariable long id) {
+    public ResponseEntity<User> getUserById(@PathVariable long id) {
         User user = userService.getUserById(id);
-        return user;
+        return (user != null)
+                ? new ResponseEntity<>(user, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-
-
     @PostMapping("/admin/user/new")
-    public User addUser(@RequestBody User user) {
+    public ResponseEntity<User> addUser(@RequestBody User user) {
         userService.add(user);
-        return user;
+        return ResponseEntity.ok().body(user);
     }
 
 
     @PatchMapping("/admin/user/edit")
-    public User editUser(@RequestBody User user) {
+    public ResponseEntity<?> editUser(@RequestBody User user) {
         userService.update(user);
-        return user;
+        return ResponseEntity.ok().body(user);
     }
 
     @DeleteMapping("admin/user/{id}")
-    public void deleteUser(@PathVariable("id") long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable("id") long id) {
         userService.delete(userService.getUserById(id));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
